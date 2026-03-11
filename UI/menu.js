@@ -186,3 +186,84 @@ function addTask(category) {
 
   console.log("Task added successfully");
 }
+
+function listTasks(category) {
+  if (category.tasks.length === 0) {
+    console.log("No tasks found");
+    return;
+  }
+
+  category.tasks.forEach((task, index) => {
+    console.log(`\n${index + 1}. ${task.name}`);
+    console.log(`Description: ${task.description}`);
+    console.log(`Priority: ${task.priority}`);
+    console.log(`Due Date: ${task.dueDate}`);
+    console.log(`Tags: ${task.tags.join(", ")}`);
+    console.log(`status:${task.status}`);
+  });
+}
+
+function searchTask(category) {
+  const term = readlineSync
+    .question("Enter task name to search: ")
+    .toLowerCase();
+
+  if (category.tasks.length === 0) {
+    console.log("No tasks available");
+    return;
+  }
+
+  let found = false;
+
+  category.tasks.forEach((task, index) => {
+    if (task.name.toLowerCase().includes(term)) {
+      console.log(`\n${index + 1}. ${task.name}`);
+      console.log(`Description: ${task.description}`);
+      console.log(`Priority: ${task.priority}`);
+      console.log(`Due Date: ${task.dueDate}`);
+      console.log(`Status: ${task.status}`);
+      console.log(`Tags: ${task.tags.join(", ")}`);
+      found = true;
+    }
+  });
+
+  if (!found) {
+    console.log("Task not found");
+  }
+}
+
+function removeTask(category) {
+  listTasks(category);
+
+  if (category.tasks.length === 0) {
+    console.log("No tasks to remove");
+    return;
+  }
+
+  const input = readlineSync
+    .question("Enter task number or name to remove: ")
+    .trim();
+
+  let index = parseInt(input) - 1;
+
+  if (isNaN(index)) {
+    index = category.tasks.findIndex((task) => task.name === input);
+  }
+
+  if (index >= 0 && index < category.tasks.length) {
+    const confirm = readlineSync
+      .question(
+        "Are you sure you want to permanently delete this task? (yes/no): ",
+      )
+      .toLowerCase();
+
+    if (confirm === "yes") {
+      const removedTask = category.tasks.splice(index, 1);
+      console.log(`Task "${removedTask[0].name}" removed successfully`);
+    } else {
+      console.log("Task deletion cancelled");
+    }
+  } else {
+    console.log("Task not found");
+  }
+}
