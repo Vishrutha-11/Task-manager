@@ -42,7 +42,7 @@ function addCategory() {
     return;
   }
 
-  categories.push(name);
+  categories.push({ name: name, tasks: [] });
   console.log(`Category "${name}" created successfully`);
 }
 
@@ -51,32 +51,47 @@ function listCategory() {
     console.log("No categories found");
   } else {
     categories.forEach((cat, index) => {
-      console.log(`${index + 1}. ${cat}`);
+      console.log(`${index + 1}. ${cat.name}`);
     });
   }
 
-  const input = readlineSync.question('\nType "back" to return: ');
-  if (input.toLowerCase() === "back") return;
+  // const input = readlineSync.question('\nType "back" to return: ');
+  // if (input.toLowerCase() === "back") return;
 }
 
 function searchCategory() {
-  console.log(categories);
+  if (categories.length === 0) {
+    console.log("No categories available");
+    return;
+  }
 
-  const search = readlineSync.question("enter the term to search: ");
+  console.log("\nAvailable Categories:");
+  categories.forEach((c, index) => {
+    console.log(`${index + 1}. ${c.name}`);
+  });
+
+  const search = readlineSync.question("\nEnter the term to search: ");
 
   if (search.toLowerCase() === "back") {
     return;
   }
 
-  if (categories.includes(search)) {
-    console.log(`${search} is found`);
-  } else {
+  const found = categories.filter((c) =>
+    c.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  if (found.length === 0) {
     console.log("No categories found matching that term.");
+  } else {
+    console.log("\nFound categories:");
+    found.forEach((c, index) => {
+      console.log(`${index + 1}. ${c.name}`);
+    });
   }
 }
 
 function openCategory() {
-  console.log(categories);
+  console.log(categories.map((c) => c.name));
 
   const open = readlineSync.question("pick name: ");
 
@@ -84,9 +99,54 @@ function openCategory() {
     return;
   }
 
-  if (categories.includes(open)) {
-    console.log("category is opened");
-  } else {
-    console.log("invalid category name");
+  const category = categories.find((c) => c.name === open);
+  if (!category) {
+    console.log("invalid category");
+    return;
+  }
+
+  console.log(`opened category :${category.name}`);
+  categoryMenu(category);
+}
+
+function categoryMenu(category) {
+  while (true) {
+    console.log("\n =====Open category=====");
+    console.log("1. Add Task");
+    console.log("2. List Tasks");
+    console.log("3. Search Task");
+    console.log("4. Edit Task");
+    console.log("5. Remove Task");
+    console.log("6. Back");
+
+    const choice = readlineSync.question("enter choice: ");
+
+    switch (choice) {
+      case "1":
+        addTask(category);
+        break;
+
+      case "2":
+        listTasks(category);
+        break;
+
+      case "3":
+        searchTask(category);
+        break;
+
+      case "4":
+        editTask(category);
+        break;
+
+      case "5":
+        removeTask(category);
+        break;
+
+      case "6":
+        return;
+
+      default:
+        console.log("Invalid choice");
+    }
   }
 }
