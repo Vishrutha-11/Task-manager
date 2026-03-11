@@ -150,3 +150,39 @@ function categoryMenu(category) {
     }
   }
 }
+
+function addTask(category) {
+  const name = readlineSync.question("Enter task name: ");
+  const description = readlineSync.question("Enter description: ");
+  const priority = readlineSync.questionInt("Enter priority (1-100): ");
+  const dueDate = readlineSync.question("Enter due date (YYYY-MM-DD): ");
+  const tags = readlineSync.question("Enter tags (comma separated): ");
+
+  console.log("\nSelect Status:");
+  console.log("1. PENDING");
+  console.log("2. PROCESSING");
+  console.log("3. COMPLETED");
+
+  let statusChoice = readlineSync.question("Enter status number: ");
+
+  let status = "PENDING"; // default
+
+  if (statusChoice === "2") {
+    status = "PROCESSING";
+  } else if (statusChoice === "3") {
+    status = "COMPLETED";
+  }
+
+  const task = {
+    name: name,
+    description: description,
+    priority: priority,
+    dueDate: dueDate,
+    tags: tags.split(",").map((tag) => tag.trim()),
+    status: status,
+  };
+
+  category.tasks.push(task);
+
+  console.log("Task added successfully");
+}
