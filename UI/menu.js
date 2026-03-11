@@ -47,9 +47,6 @@ function addCategory() {
 }
 
 function listCategory() {
-  const input = readlineSync.question('\nType "back" to return: ');
-  if (input.toLowerCase() === "back") return;
-
   if (categories.length === 0) {
     console.log("No categories found");
   } else {
@@ -57,6 +54,9 @@ function listCategory() {
       console.log(`${index + 1}. ${cat}`);
     });
   }
+
+  const input = readlineSync.question('\nType "back" to return: ');
+  if (input.toLowerCase() === "back") return;
 }
 
 function searchCategory() {
