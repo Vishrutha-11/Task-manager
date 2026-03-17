@@ -187,22 +187,72 @@ function addTask(category) {
   console.log("Task added successfully");
 }
 
+// function listTasks(category) {
+//   if (category.tasks.length === 0) {
+//     console.log("No tasks found");
+//     return;
+//   }
+
+//   category.tasks.forEach((task, index) => {
+//     console.log(`\n${index + 1}. ${task.name}`);
+//     console.log(`Description: ${task.description}`);
+//     console.log(`Priority: ${task.priority}`);
+//     console.log(`Due Date: ${task.dueDate}`);
+//     console.log(`Tags: ${task.tags.join(", ")}`);
+//     console.log(`status:${task.status}`);
+//   });
+// }
 function listTasks(category) {
   if (category.tasks.length === 0) {
     console.log("No tasks found");
     return;
   }
 
-  category.tasks.forEach((task, index) => {
+  console.log("\nSort tasks by:");
+  console.log("1. Name");
+  console.log("2. Due Date");
+  console.log("3. Created Date");
+  console.log("4. Priority");
+  console.log("5. None");
+
+  const choice = readlineSync.question("Enter choice: ");
+
+  let tasks = [...category.tasks]; // copy array
+
+  switch (choice) {
+    case "1":
+      tasks.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+
+    case "2":
+      tasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+      break;
+
+    case "3":
+      tasks.sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+      break;
+
+    case "4":
+      tasks.sort((a, b) => b.priority - a.priority);
+      break;
+
+    case "5":
+      // no sorting
+      break;
+
+    default:
+      console.log("Invalid choice. Showing unsorted tasks.");
+  }
+
+  tasks.forEach((task, index) => {
     console.log(`\n${index + 1}. ${task.name}`);
     console.log(`Description: ${task.description}`);
     console.log(`Priority: ${task.priority}`);
     console.log(`Due Date: ${task.dueDate}`);
     console.log(`Tags: ${task.tags.join(", ")}`);
-    console.log(`status:${task.status}`);
+    console.log(`Status: ${task.status}`);
   });
 }
-
 function searchTask(category) {
   const term = readlineSync
     .question("Enter task name to search: ")
@@ -232,29 +282,105 @@ function searchTask(category) {
   }
 }
 
-function removeTask(category) {
+function editTask(category) {
   listTasks(category);
 
-  if (category.tasks.length === 0) {
-    console.log("No tasks to remove");
-    return;
-  }
-
   const input = readlineSync
-    .question("Enter task number or name to remove: ")
+    .question("Enter task number or name to edit: ")
     .trim();
 
   let index = parseInt(input) - 1;
 
   if (isNaN(index)) {
-    index = category.tasks.findIndex((task) => task.name === input);
+    index = category.tasks.findIndex(
+      (task) => task.name.toLowerCase() === input.toLowerCase(),
+    );
   }
 
-  if (index >= 0 && index < category.tasks.length) {
+  if (index < 0 || index >= category.tasks.length) {
+    console.log("Task not found");
+    return;
+  }
+
+  const task = category.tasks[index];
+
+  while (true) {
+    console.log("\nEdit Menu");
+    console.log("1. Name");
+    console.log("2. Description");
+    console.log("3. Priority");
+    console.log("4. Due Date");
+    console.log("5. Tags");
+    console.log("6. Status");
+    console.log("0. Done Editing");
+
+    const choice = readlineSync.question("Select option: ");
+
+    switch (choice) {
+      case "1":
+        task.name = readlineSync.question("Enter new name: ");
+        break;
+
+      case "2":
+        task.description = readlineSync.question("Enter new description: ");
+        break;
+
+      case "3":
+        task.priority = Number(
+          readlineSync.question("Enter new priority (1-100): "),
+        );
+        break;
+
+      case "4":
+        task.dueDate = readlineSync.question("Enter new due date: ");
+        break;
+
+      case "5":
+        const tags = readlineSync.question("Enter tags (comma separated): ");
+        task.tags = tags.split(",").map((t) => t.trim());
+        break;
+
+      case "6":
+        console.log("1. PENDING");
+        console.log("2. PROCESSING");
+        console.log("3. COMPLETED");
+
+        const status = readlineSync.question("Select status: ");
+
+        if (status === "1") task.status = "PENDING";
+        if (status === "2") task.status = "PROCESSING";
+        if (status === "3") task.status = "COMPLETED";
+        break;
+
+      case "0":
+        console.log("Finished editing");
+        return;
+
+      default:
+        console.log("Invalid choice");
+    }
+  }
+}
+function removeTask(category) {
+  if (category.tasks.length === 0) {
+    console.log("No tasks to remove");
+    return;
+  }
+
+  listTasks(category); // show tasks first
+
+  const name = readlineSync
+    .question("\nEnter task name to delete: ")
+    .trim()
+    .toLowerCase();
+
+  const index = category.tasks.findIndex(
+    (task) => task.name.toLowerCase() === name,
+  );
+
+  if (index !== -1) {
     const confirm = readlineSync
-      .question(
-        "Are you sure you want to permanently delete this task? (yes/no): ",
-      )
+      .question("Are you sure? (yes/no): ")
       .toLowerCase();
 
     if (confirm === "yes") {
